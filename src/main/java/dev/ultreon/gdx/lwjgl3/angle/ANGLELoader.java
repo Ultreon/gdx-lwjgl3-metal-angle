@@ -14,13 +14,9 @@
  * limitations under the License.
  ******************************************************************************/
 
-package com.github.dgzt.gdx.lwjgl3.angle;
+package dev.ultreon.gdx.lwjgl3.angle;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import org.lwjgl.egl.EGL;
-import org.lwjgl.glfw.GLFWNativeEGL;
-import org.lwjgl.opengles.GLES;
-import org.lwjgl.system.Configuration;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -32,16 +28,13 @@ public class ANGLELoader {
     private static final String EGL_LIB_NAME = "EGL";
     private static final String GLES_LIB_NAME = "GLESv2";
 
-    static public boolean isWindows = System.getProperty("os.name").contains("Windows");
-    static public boolean isLinux = System.getProperty("os.name").contains("Linux")
-            || System.getProperty("os.name").contains("FreeBSD");
-    static public boolean is64Bit = System.getProperty("os.arch").contains("64")
-            || System.getProperty("os.arch").startsWith("armv8");
+    static public boolean isMac = System.getProperty("os.name").contains("Mac");
+    static public boolean isIntel = System.getProperty("os.arch").contains("x86");
+    static public boolean isSilicon = System.getProperty("os.arch").contains("aarch64");
 
     static private final Random random = new Random();
     static private File egl;
     static private File gles;
-    static private File vulkan;
     static private File lastWorkingDir;
 
     public static void closeQuietly (Closeable c) {
@@ -176,42 +169,31 @@ public class ANGLELoader {
 
     public static void load () {
         // TODO fix Linux support
-//        if (!is64Bit || (!isWindows && !isLinux))
-//            throw new GdxRuntimeException("ANGLE Vulkan is only supported on x86_64 Windows and x64 Linux.");
-        if (!is64Bit || !isWindows)
-            throw new GdxRuntimeException("ANGLE Vulkan is only supported on x86_64 Windows.");
+        if ((!isIntel && !isSilicon) || !isMac)
+            throw new GdxRuntimeException("ANGLE Metal is only supported on 64-bit macOS.");
         String osDir = null;
         String ext = null;
-        if (isWindows) {
-            osDir = "windows64";
-            ext = ".dll";
-        }
-        if (isLinux) {
-            osDir = "linux64";
-            ext = ".so";
-        }
+        osDir = isIntel ? "mac64" : "macarm64";
+        ext = ".dylib";
 
         String eglSource = osDir + "/lib" + EGL_LIB_NAME + ext;
         String glesSource = osDir + "/lib" + GLES_LIB_NAME + ext;
-        String vulkanSource = osDir + "/" + (isWindows ? "vulkan-1" : "libvulkan") + ext + (isLinux ? ".1" : "");
         String crc = crc(ANGLELoader.class.getResourceAsStream("/" + eglSource))
-                + crc(ANGLELoader.class.getResourceAsStream("/" + glesSource))
-                + crc(ANGLELoader.class.getResourceAsStream("/" + vulkanSource));
+                + crc(ANGLELoader.class.getResourceAsStream("/" + glesSource));
         egl = getExtractedFile(crc, new File(eglSource).getName());
         gles = getExtractedFile(crc, new File(glesSource).getName());
-        vulkan = getExtractedFile(crc, new File(vulkanSource).getName());
 
         extractFile(eglSource, egl);
         System.load(egl.getAbsolutePath());
         extractFile(glesSource, gles);
         System.load(gles.getAbsolutePath());
-        extractFile(vulkanSource, vulkan);
-        System.load(vulkan.getAbsolutePath());
+
+        // Load metal angle
+        System.load("/System/Library/Frameworks/Metal.framework/Versions/Current/Metal");
     }
 
     public static void postGlfwInit () {
         new File(lastWorkingDir, egl.getName()).delete();
         new File(lastWorkingDir, gles.getName()).delete();
-        new File(lastWorkingDir, vulkan.getName()).delete();
     }
 }

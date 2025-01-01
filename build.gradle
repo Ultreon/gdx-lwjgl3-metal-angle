@@ -18,11 +18,11 @@ apply plugin: 'java-library'
 apply plugin: 'com.vanniktech.maven.publish'
 
 //Obviously, change the next line to match your project name.
-def projectName = 'gdx-lwjgl3-angle-vulkan'
+def projectName = 'gdx-lwjgl3-metal-angle'
 
 //Change this to whatever Maven Central group you might publish to,
 //which is probably not this one if you aren't Tommy Ettinger.
-group 'com.github.dgzt.gdx.lwjgl3'
+group 'dev.ultreon.gdx.lwjgl3'
 
 version "$VERSION_NAME" // You can set the version in gradle.properties .
 
@@ -116,8 +116,8 @@ dependencies {
     api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
 
     implementation "org.lwjgl:lwjgl-opengles:$lwjgl3Version"
-    implementation "org.lwjgl:lwjgl-opengles:$lwjgl3Version:natives-linux"
-    implementation "org.lwjgl:lwjgl-opengles:$lwjgl3Version:natives-windows"
+    implementation "org.lwjgl:lwjgl-opengles:$lwjgl3Version:natives-macos"
+    implementation "org.lwjgl:lwjgl-opengles:$lwjgl3Version:natives-macos-arm64"
     implementation "org.lwjgl:lwjgl-egl:$lwjgl3Version"
 
     testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
@@ -133,51 +133,49 @@ tasks.register('setupExternalNativesDirs') {
     doNotTrackState("Don't track state")
 }
 
-tasks.register('fetchAngleWindows64NativesZIP', Download) {
+tasks.register('fetchAngleMac64NativesZIP', Download) {
     dependsOn setupExternalNativesDirs
-    src 'https://github.com/Dgzt/angle-vulkan-natives/releases/download/v6727/angle-windows-x64.zip'
-    dest 'build/angle-windows-x64.zip'
+    src 'https://github.com/Ultreon/metal-angle-natives/releases/download/v6727/angle-macos-x64.zip'
+    dest 'build/angle-macos-x64.zip'
     onlyIfModified true
     useETag "all"
 }
 
-tasks.register('fetchAngleWLinux64NativesZIP', Download) {
+tasks.register('fetchAngleMacAarch64NativesZIP', Download) {
     dependsOn setupExternalNativesDirs
-    src 'https://github.com/Dgzt/angle-vulkan-natives/releases/download/v6727/angle-linux-x64.zip'
-    dest 'build/angle-linux-x64.zip'
+    src 'https://github.com/Ultreon/metal-angle-natives/releases/download/v6727/angle-macos-aarch64.zip'
+    dest 'build/angle-macos-aarch64.zip'
     onlyIfModified true
     useETag "all"
 }
 
-tasks.register('extractWindows64Natives', Copy) {
-    dependsOn fetchAngleWindows64NativesZIP
-    from zipTree("build/angle-windows-x64.zip")
-    include "dist/libEGL.dll"
-    include "dist/libGLESv2.dll"
-    include "dist/vulkan-1.dll"
+tasks.register('extractMac64Natives', Copy) {
+    dependsOn fetchAngleMac64NativesZIP
+    from zipTree("build/angle-macos-x64.zip")
+    include "dist/libEGL.dylib"
+    include "dist/libGLESv2.dylib"
     eachFile { fcp ->
         fcp.path = fcp.path.replaceFirst("dist/", '')
     }
 
-    into "src/main/resources/windows64"
+    into "src/main/resources/mac64"
     doNotTrackState("Don't track state")
 }
 
-tasks.register('extractLinux64Natives', Copy) {
-    dependsOn fetchAngleWLinux64NativesZIP
-    from zipTree("build/angle-linux-x64.zip")
-    include "dist/libEGL.so"
-    include "dist/libGLESv2.so"
-    include "dist/libvulkan.so.1"
+tasks.register('extractMacAarch64Natives', Copy) {
+    dependsOn fetchAngleMacAarch64NativesZIP
+    from zipTree("build/angle-macos-aarch64.zip")
+    include "dist/libEGL.dylib"
+    include "dist/libGLESv2.dylib"
     eachFile { fcp ->
         fcp.path = fcp.path.replaceFirst("dist/", '')
     }
 
-    into "src/main/resources/linux64"
+    into "src/main/resources/macarm64"
     doNotTrackState("Don't track state")
 }
 
 tasks.register('fetchExternalNatives', Copy) {
-    dependsOn extractWindows64Natives
-    dependsOn extractLinux64Natives
+    dependsOn extractMac64Natives
+    dependsOn extractMacAarch64Natives
 }

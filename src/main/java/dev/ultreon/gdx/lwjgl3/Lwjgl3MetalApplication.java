@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.github.dgzt.gdx.lwjgl3;
+package dev.ultreon.gdx.lwjgl3;
 
 
 import java.io.File;
@@ -34,7 +34,7 @@ import com.badlogic.gdx.backends.lwjgl3.audio.OpenALLwjgl3Audio;
 import com.badlogic.gdx.graphics.glutils.GLVersion;
 
 import com.badlogic.gdx.utils.*;
-import com.github.dgzt.gdx.lwjgl3.angle.ANGLELoader;
+import dev.ultreon.gdx.lwjgl3.angle.ANGLELoader;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.AMDDebugOutput;
@@ -59,10 +59,8 @@ import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio;
 import com.badlogic.gdx.math.GridPoint2;
-import org.lwjgl.system.Configuration;
-import org.lwjgl.system.ThreadLocalUtil;
 
-public class Lwjgl3VulkanApplication implements Lwjgl3ApplicationBase {
+public class Lwjgl3MetalApplication implements Lwjgl3ApplicationBase {
     private final Lwjgl3ApplicationConfiguration config;
     final Array<Lwjgl3Window> windows = new Array<Lwjgl3Window>();
     private volatile Lwjgl3Window currentWindow;
@@ -112,11 +110,11 @@ public class Lwjgl3VulkanApplication implements Lwjgl3ApplicationBase {
         }
     }
 
-    public Lwjgl3VulkanApplication (ApplicationListener listener) {
+    public Lwjgl3MetalApplication(ApplicationListener listener) {
         this(listener, new Lwjgl3ApplicationConfiguration());
     }
 
-    public Lwjgl3VulkanApplication (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
+    public Lwjgl3MetalApplication(ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
         if (config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES32) loadANGLE();
         initializeGlfw();
         setApplicationLogger(new Lwjgl3ApplicationLogger());
@@ -493,8 +491,8 @@ public class Lwjgl3VulkanApplication implements Lwjgl3ApplicationBase {
             if (config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES32) {
                 GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_EGL_CONTEXT_API);
                 GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_ES_API);
-                GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
-                GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
+                GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 2);
+                GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 0);
             }
         }
 

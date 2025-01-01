@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.github.dgzt.gdx.lwjgl3;
+package dev.ultreon.gdx.lwjgl3;
 
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 

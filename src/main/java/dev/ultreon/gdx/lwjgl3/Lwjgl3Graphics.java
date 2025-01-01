@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package com.github.dgzt.gdx.lwjgl3;
+package dev.ultreon.gdx.lwjgl3;
 
 import java.nio.IntBuffer;
 
@@ -103,7 +103,7 @@ public class Lwjgl3Graphics extends AbstractGraphics implements Disposable {
         } else {
             try {
                 this.gl20 = this.gl30 = this.gl31 = this.gl32 = window.getConfig().glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL20 ? new Lwjgl3GL32()
-                        : (GL32)Class.forName("com.github.dgzt.gdx.lwjgl3.angle.Lwjgl3GLES32").newInstance();
+                        : (GL32)Class.forName("dev.ultreon.gdx.lwjgl3.angle.Lwjgl3GLES32").newInstance();
             } catch (Throwable t) {
                 throw new GdxRuntimeException("Couldn't instantiate GLES20.", t);
             }
